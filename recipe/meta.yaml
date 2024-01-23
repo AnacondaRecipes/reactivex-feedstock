@@ -11,7 +11,10 @@ source:
 
 build:
   noarch: python
-  script: {{ PYTHON }} -m pip install . -vv
+  # noarch: only build on linux64
+  skip: true # [not linux64]
+
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
   number: 0
 
 requirements:
@@ -19,6 +22,7 @@ requirements:
     - python >=3.7,<4.0
     - poetry-core >=1.0.0
     - pip
+    - wheel
   run:
     - python >=3.7,<4.0
     - typing-extensions >=4.1.1, <5.0.0
@@ -38,5 +42,22 @@ about:
   license_file: LICENSE
 
 extra:
+  skip-lints:
+    # These are needed because of bug: https://github.com/anaconda-distribution/anaconda-linter/issues/197
+    - http_url
+    - invalid_url
+    - avoid_noarch
+
+    - host_section_needs_exact_pinnings
+    - missing_dev_url
+    - missing_description
+    - missing_documentation
+
   recipe-maintainers:
     - ruben-arts
+  anaconda-services:
+    ref:  https://anaconda.zendesk.com/agent/tickets/44101
+    reason: "needed for influxdb-client"
+    recipe-maintainers:
+      - bkreider
+
